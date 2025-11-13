@@ -1,0 +1,71 @@
+/* blocks/callout/callout.css */
+
+.callout {
+  background-color: #e3f2fd;
+  border-left: 4px solid #2196f3;
+  border-radius: 4px;
+  padding: 20px;
+  margin: 20px 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.callout p {
+  margin: 0;
+  color: #1565c0;
+  line-height: 1.6;
+}
+
+.callout strong {
+  display: block;
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: #0d47a1;
+}
+
+/* Icon styling */
+.callout::before {
+  content: "ℹ️";
+  font-size: 24px;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+
+/* Variations */
+.callout.warning {
+  background-color: #fff3e0;
+  border-left-color: #ff9800;
+}
+
+.callout.warning::before {
+  content: "⚠️";
+}
+
+.callout.warning p {
+  color: #e65100;
+}
+
+.callout.success {
+  background-color: #e8f5e9;
+  border-left-color: #4caf50;
+}
+
+.callout.success::before {
+  content: "✅";
+}
+
+.callout.success p {
+  color: #2e7d32;
+}
+
+.callout.error {
+  background-color: #ffebee;
+  border-left-color: #f44336;
+}
+
+.callout.error::before {
+  content: "❌";
+}
+
+.callout.error p {
+  color: #c62828;
+}
