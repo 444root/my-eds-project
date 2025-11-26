@@ -1,6 +1,6 @@
 function waitForCSSLoad() {
   return new Promise((resolve) => {
-    const styleSheets = document.styleSheets;
+    const { styleSheets } = document;
     const checkCSS = () => {
       for (let i = 0; i < styleSheets.length; i += 1) {
         if (styleSheets[i].href && styleSheets[i].href.includes('header.css')) {
@@ -16,10 +16,7 @@ function waitForCSSLoad() {
 
 export default async function decorate(block) {
   const resp = await fetch('/nav.plain.html');
-  if (!resp.ok) {
-    console.error('Failed to load nav:', resp.status);
-    return;
-  }
+  if (!resp.ok) return;
 
   const html = await resp.text();
   const parser = new DOMParser();
