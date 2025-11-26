@@ -23,6 +23,14 @@ export default async function decorate(block) {
         if (li.querySelector('ul')) {
           li.classList.add('nav-drop');
           li.setAttribute('aria-expanded', 'false');
+          li.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isExpanded = li.getAttribute('aria-expanded') === 'true';
+            div.querySelectorAll('.nav-drop').forEach((drop) => {
+              drop.setAttribute('aria-expanded', 'false');
+            });
+            li.setAttribute('aria-expanded', String(!isExpanded));
+          });
         }
       });
     }
