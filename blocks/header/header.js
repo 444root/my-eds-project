@@ -1,19 +1,3 @@
-function waitForCSSLoad() {
-  return new Promise((resolve) => {
-    const { styleSheets } = document;
-    const checkCSS = () => {
-      for (let i = 0; i < styleSheets.length; i += 1) {
-        if (styleSheets[i].href && styleSheets[i].href.includes('header.css')) {
-          resolve();
-          return;
-        }
-      }
-      requestAnimationFrame(checkCSS);
-    };
-    checkCSS();
-  });
-}
-
 export default async function decorate(block) {
   const resp = await fetch('/nav.plain.html');
   if (!resp.ok) return;
@@ -32,31 +16,15 @@ export default async function decorate(block) {
   sections.forEach((section, i) => {
     const div = document.createElement('div');
     div.className = classNames[i] || 'nav-extra';
+    div.innerHTML = section.innerHTML;
 
     if (i === 1) {
-      const wrapper = document.createElement('div');
-      wrapper.className = 'default-content-wrapper';
-      wrapper.innerHTML = section.innerHTML;
-
-      wrapper.querySelectorAll(':scope ul > li').forEach((li) => {
+      div.querySelectorAll(':scope ul > li').forEach((li) => {
         if (li.querySelector('ul')) {
           li.classList.add('nav-drop');
           li.setAttribute('aria-expanded', 'false');
-
-          li.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const expanded = li.getAttribute('aria-expanded') === 'true';
-            wrapper.querySelectorAll('.nav-drop').forEach((drop) => {
-              drop.setAttribute('aria-expanded', 'false');
-            });
-            li.setAttribute('aria-expanded', String(!expanded));
-          });
         }
       });
-
-      div.appendChild(wrapper);
-    } else {
-      div.innerHTML = section.innerHTML;
     }
 
     if (i === 2) {
@@ -92,13 +60,6 @@ export default async function decorate(block) {
   });
 
   nav.prepend(hamburger);
-
-  const navWrapper = document.createElement('div');
-  navWrapper.className = 'nav-wrapper';
-  navWrapper.append(nav);
-
-  await waitForCSSLoad();
-
   block.textContent = '';
-  block.append(navWrapper);
+  block.appendChild(nav);
 }
