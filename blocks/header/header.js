@@ -1,6 +1,25 @@
+function waitForCSSLoad() {
+  return new Promise((resolve) => {
+    const styleSheets = document.styleSheets;
+    const checkCSS = () => {
+      for (let i = 0; i < styleSheets.length; i += 1) {
+        if (styleSheets[i].href && styleSheets[i].href.includes('header.css')) {
+          resolve();
+          return;
+        }
+      }
+      requestAnimationFrame(checkCSS);
+    };
+    checkCSS();
+  });
+}
+
 export default async function decorate(block) {
   const resp = await fetch('/nav.plain.html');
-  if (!resp.ok) return;
+  if (!resp.ok) {
+    console.error('Failed to load nav:', resp.status);
+    return;
+  }
 
   const html = await resp.text();
   const parser = new DOMParser();
@@ -26,6 +45,15 @@ export default async function decorate(block) {
         if (li.querySelector('ul')) {
           li.classList.add('nav-drop');
           li.setAttribute('aria-expanded', 'false');
+
+          li.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const expanded = li.getAttribute('aria-expanded') === 'true';
+            wrapper.querySelectorAll('.nav-drop').forEach((drop) => {
+              drop.setAttribute('aria-expanded', 'false');
+            });
+            li.setAttribute('aria-expanded', String(!expanded));
+          });
         }
       });
 
@@ -71,6 +99,8 @@ export default async function decorate(block) {
   const navWrapper = document.createElement('div');
   navWrapper.className = 'nav-wrapper';
   navWrapper.append(nav);
+
+  await waitForCSSLoad();
 
   block.textContent = '';
   block.append(navWrapper);
