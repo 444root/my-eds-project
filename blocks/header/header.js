@@ -8,18 +8,28 @@ export default async function decorate(block) {
   nav.id = 'nav';
   nav.setAttribute('aria-expanded', 'false');
 
-  const classNames = ['nav-brand', 'nav-sections', 'nav-tools'];
+  const topRow = document.createElement('div');
+  topRow.className = 'nav-top';
+
+  const bottomRow = document.createElement('div');
+  bottomRow.className = 'nav-bottom';
+
   const sections = fragment.querySelectorAll(':scope .section');
 
   sections.forEach((section, i) => {
     const div = document.createElement('div');
-    div.className = classNames[i] || 'nav-extra';
 
-    while (section.firstChild) {
-      div.appendChild(section.firstChild);
-    }
-
-    if (i === 1) {
+    if (i === 0) {
+      div.className = 'nav-brand';
+      while (section.firstChild) {
+        div.appendChild(section.firstChild);
+      }
+      topRow.appendChild(div);
+    } else if (i === 1) {
+      div.className = 'nav-sections';
+      while (section.firstChild) {
+        div.appendChild(section.firstChild);
+      }
       div.querySelectorAll(':scope ul > li').forEach((li) => {
         if (li.querySelector('ul')) {
           li.classList.add('nav-drop');
@@ -34,9 +44,55 @@ export default async function decorate(block) {
           });
         }
       });
-    }
+      bottomRow.appendChild(div);
+    } else if (i === 2) {
+      div.className = 'nav-tools';
 
-    nav.appendChild(div);
+      const wrapper = section.querySelector('.default-content-wrapper');
+      if (wrapper) {
+        const paragraphs = wrapper.querySelectorAll('p');
+
+        if (paragraphs[0]) {
+          const langDiv = document.createElement('div');
+          langDiv.className = 'nav-lang';
+          const langHtml = paragraphs[0].innerHTML;
+          const langs = langHtml.split(/<br\s*\/?>/i).map((l) => l.trim()).filter(Boolean);
+          const firstLang = langs[0] || 'ITA';
+          langDiv.innerHTML = `<span>${firstLang}</span><span class="nav-lang-arrow">∨</span>`;
+          div.appendChild(langDiv);
+        }
+
+        if (paragraphs[1]) {
+          const btnDiv = document.createElement('div');
+          btnDiv.className = 'nav-buttons';
+          const html = paragraphs[1].innerHTML;
+          const items = html.split(/<br\s*\/?>/i)
+            .map((item) => item.trim())
+            .filter((item) => item && item !== '—' && item !== '-');
+
+          items.forEach((item) => {
+            const btn = document.createElement('a');
+            btn.className = 'nav-btn';
+            if (item.startsWith('<a')) {
+              const temp = document.createElement('div');
+              temp.innerHTML = item;
+              const link = temp.querySelector('a');
+              if (link) {
+                btn.href = link.href;
+                btn.textContent = link.textContent;
+              }
+            } else {
+              const slug = item.toLowerCase().replace(/\s+/g, '-');
+              btn.href = `/${slug}`;
+              btn.textContent = item;
+            }
+            btnDiv.appendChild(btn);
+          });
+          div.appendChild(btnDiv);
+        }
+      }
+      topRow.appendChild(div);
+    }
   });
 
   const hamburger = document.createElement('div');
@@ -50,7 +106,10 @@ export default async function decorate(block) {
     nav.setAttribute('aria-expanded', String(!expanded));
   });
 
+  nav.appendChild(topRow);
+  nav.appendChild(bottomRow);
   nav.prepend(hamburger);
+
   block.textContent = '';
   block.appendChild(nav);
 }
